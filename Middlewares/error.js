@@ -5,6 +5,7 @@ const ErrorResponse = require("./../utils/errorResponse");
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
+  console.log(error);
 
   // Handling the error for resource not found
   if (error.name === "CastError") {
@@ -25,7 +26,7 @@ const errorHandler = (err, req, res, next) => {
   }
 
   // Sending the response back to the user
-  res.status(error.statuscode || 500).json({
+  res.status(error.statusCode || 500).json({
     success: false,
     error: error.message || "Internal server error",
   });

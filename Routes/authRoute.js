@@ -19,5 +19,20 @@ router.get("/login", authController.getLoginPage);
 // Route for POST request on "/login" link
 router.post("/login", authController.postLoginPage);
 
+// Route for GET request on "/forgot-password" link
+router.get("/forgot-password", authController.getForgotPassword);
+
+// Route for POST request on "/forgot-password" link
+router.post("/forgot-password", authController.postForgotPassword);
+
+// Route for GET request on "/reset-password" link
+router.get("/reset-password", authController.getResetPassword);
+
+// Route for POST request on "/reset-password" link
+router.post("/reset-password", authController.postResetPassword);
+
+// Route for GET request on "/logout" link
+router.get("/logout", authController.getLogout);
+
 // Exporting the router
 module.exports = router;
