@@ -42,6 +42,8 @@ exports.postRegisterPage = async (req, res, next) => {
       expiresIn: "3d",
     });
 
+    req.user = createdUser;
+
     // Sends the response back to the user with cookie of jwt set to the token and expires in 3 days
     res
       .cookie("jwt", token, { maxAge: 1000 * 60 * 60 * 24 * 3, httpOnly: true })
@@ -94,6 +96,8 @@ exports.postLoginPage = async (req, res, next) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "3d",
     });
+
+    req.user = user;
 
     // Sends the response back to the user with cookie of jwt set to the token and expires in 3 days
     res
@@ -211,7 +215,7 @@ exports.postResetPassword = async (req, res, next) => {
 // Exporting the function for getting the reset password page
 exports.getLogout = (req, res, next) => {
   // Setting the value of jwt cookie to an empty string and then destroying the cookie in 1 ms followed by redirecting the user to the home page.
-  res.cookie("jwt", "", { maxAge: 1 }).redirect("/");
+  res.cookie("jwt", "", { maxAge: 1 }).redirect("/login");
 };
 
 // Fucntion for sending the mail of the reset-password and the response back to the user.

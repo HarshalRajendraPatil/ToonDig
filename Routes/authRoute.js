@@ -3,6 +3,7 @@ const express = require("express");
 
 // Requiring all the important modules
 const authController = require("./../Controllers/authController");
+const middleware = require("./../Middlewares/middleware");
 
 // Creating the instance of express which acts like the mini-application to the main app
 const router = express.Router();

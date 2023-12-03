@@ -6,10 +6,11 @@ const morgan = require("morgan");
 // Requiring all the important modules
 require("dotenv").config();
 require("./dataBaseConnection");
-const error = require("./Middlewares/error");
+const middleware = require("./Middlewares/middleware");
 
 // Requiring all the Route files
 const authRoute = require("./Routes/authRoute");
+const userRoute = require("./Routes/api/userRoutes");
 
 // Creating the instance of express which acts like the application
 const app = express();
@@ -23,13 +24,18 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 // Get requrest for "/" page
-app.get("/", (req, res, next) => {
-  res.send("hellow form the server");
+app.get("/", middleware.isLoggedIn, middleware.isAdmin, (req, res, next) => {
+  res.send("hello form the server");
 });
 
 // Get request for "/login, /register, /forgotpassword and /logout" page
 app.use("/", authRoute);
-app.use(error);
+
+// Get request for User api
+app.use("/api", userRoute);
+
+// Global Error middleware
+app.use(middleware.errorHandler);
 
 // Setting up the port and starting the server
 const port = process.env.PORT || 8000;
