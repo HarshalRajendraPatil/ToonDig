@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 // Requiring all the important modules
 const ErrorResponse = require("./../utils/errorResponse");
 const User = require("./../models/UserModel");
@@ -46,9 +47,43 @@ exports.getUser = async (req, res, next) => {
 exports.updateUser = async (req, res, next) => {
   // Yet to implement
   try {
+    // Getting the value of email and userName from the request body.
+    const email = req.body.email;
+    const userName = req.body.userName;
+
+    // Handling the error is both the field are not provided
+    if (!email && !userName)
+      return next(new ErrorResponse("Please update at least one field.", 404));
+
+    // Getting the id from the URL
+    const userId = req.params.id;
+
+    // Creating the update object
+    const updateValue = {
+      userName: userName,
+      email: email,
+    };
+
+    // Checking if the email or username entered is already registered
+    const user = await User.findOne({ $or: [{ email }, { userName }] });
+    if (user) {
+      if (user.email == email)
+        return next(new ErrorResponse("Email already in use.", 400));
+      else return next(new ErrorResponse("Username already taken.", 400));
+    }
+
+    if (!user) return next(new ErrorResponse("The user does not exists", 404));
+
+    // Updating and returning the updated user
+    const updatedUser = await User.findByIdAndUpdate(userId, updateValue, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+
+    // Returning response to the user
     res.status(200).json({
       status: true,
-      message: "Updated Successfully",
+      updatedUser,
     });
   } catch (error) {
     // Gives the error the global error middleware
@@ -72,6 +107,62 @@ exports.deleteUser = async (req, res, next) => {
     res.status(204);
   } catch (error) {
     // Gives the error the global error middleware
+    next(error);
+  }
+};
+
+exports.updatePassword = async (req, res, next) => {
+  try {
+    // Getting the id from the URL
+    const userId = req.params.id;
+
+    // Getting the value of password from the request body
+    const password = req.body.password;
+
+    // Handling the error if no new password is provided
+    if (!password)
+      return next(new ErrorResponse("Please enter the new password", 400));
+
+    // Handling the error if the length of the password is less than 8 characters
+    if (password.length < 8)
+      return next(
+        new ErrorResponse("Password must contain at least 8 characters", 400)
+      );
+
+    // Finding the user with the given id
+    const user = await User.findById(userId);
+
+    // Handling the error if no user if found with the provided id
+    if (!user) return next(new ErrorResponse("No user found!", 404));
+
+    // Handling the error if the new password is same as current password
+    const isSame = await bcrypt.compare(password, user.password);
+    if (isSame)
+      return next(
+        new ErrorResponse(
+          "New password should be different from the current one.",
+          400
+        )
+      );
+
+    // Hashing the new password
+    const hashedPass = await bcrypt.hash(password, 10);
+
+    // Updating the the user with new password
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: { password: hashedPass },
+      },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    // Returning response to the user
+    res.status(200).json({
+      status: true,
+      updatedUser,
+    });
+  } catch (error) {
     next(error);
   }
 };

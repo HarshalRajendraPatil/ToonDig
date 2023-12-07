@@ -24,12 +24,12 @@ app.set("view engine", "ejs");
 app.set("views", "views");
 
 // Get requrest for "/" page
-app.get("/", middleware.isLoggedIn, middleware.isAdmin, (req, res, next) => {
+app.get("/", middleware.isLoggedIn, (req, res, next) => {
   res.send("hello form the server");
 });
 
 // Get request for "/login, /register, /forgotpassword and /logout" page
-app.use("/", authRoute);
+app.use("/api/auth", authRoute);
 
 // Get request for User api
 app.use("/api", userRoute);

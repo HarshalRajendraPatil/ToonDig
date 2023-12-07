@@ -9,7 +9,6 @@ const User = require("../models/UserModel");
 exports.errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
-  console.log(error);
 
   // Handling the error for resource not found
   if (error.name === "CastError") {
@@ -42,11 +41,11 @@ exports.isLoggedIn = (req, res, next) => {
   const token = req.cookies.jwt;
 
   // Redirecting the user to the login page if no token exists
-  if (!token) return res.redirect("/login");
+  if (!token) return res.redirect("/api/auth/login");
 
   // Verifying the token if the token exists
   jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
-    if (err) return res.redirect("/login");
+    if (err) return res.redirect("/api/auth/login");
   });
 
   // Moving on with the next middleware

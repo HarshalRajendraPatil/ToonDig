@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign-Up</title>
+    <script src="/js/register.js" defer></script>
+    <link rel="stylesheet" href="/css/register.css" />
+  </head>
+  <body>
+    <div class="container">
+      <video
+        class="bgVideo"
+        autoplay
+        loop
+        muted
+        frameborder="0"
+      > <source src="/img-and-vid/registerbgvid.mp4" type="video/mp4" /></video>
+      <div class="SignUpBox">
+        <div class="imageContainer">
+          <img class="img" src="/img-and-vid/registerbgimg.png" alt="" />
+        </div>
+        <div class="detailsContainer">
+          <div class="details">
+              <h1 class="primaryHeading">Log In</h1>
+              <h3 class="secondaryHeading">Enter in the Toon World</h3>
+              <form class="form" method="post" action="/api/auth/register">
+                <div class="inputDetails">
+                  <label for="userName">
+                    Username :-
+                  </label>
+                  <input type="text" required placeholder="Username" name="userName" id="userName" autocomplete="off
+                  ">
+                </div>
+                <div class="inputDetails">
+                  <label for="email">
+                    Email :-
+                  </label>
+                  <input type="email" required placeholder="Email" name="email" id="email" autocomplete="off
+                  ">
+                </div>
+                <div class="inputDetails">
+                  <label for="password">
+                    Password :-
+                  </label>
+                  <input type="password" name="password" id="password" required placeholder="Password" autocomplete="off
+                  ">
+                  <p class="error"></p>
+                </div><input class="submit" type="submit" value="Signup">
+              </form>
+              <div class="extras"><p class="createAcc">
+                Already have an account? <span><a href="/api/auth/login">Login</a></span>
+              </p></div>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>

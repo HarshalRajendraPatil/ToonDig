@@ -11,7 +11,7 @@ const User = require("./../models/UserModel");
 
 // Exporting the function for getting the registration page
 exports.getRegisterPage = (req, res, next) => {
-  res.json("Welcome to the Registration screen");
+  res.render("register");
 };
 
 // Exporting the function for posting to the registration page
@@ -19,6 +19,7 @@ exports.postRegisterPage = async (req, res, next) => {
   try {
     // Checking if the email, password and username is entered or not
     const { userName, email, password } = req.body;
+    console.log(userName, email, password);
     if (!email || !password || !userName)
       return next(
         new ErrorResponse("Please fill out all the fields correctly", 400)
@@ -61,7 +62,7 @@ exports.postRegisterPage = async (req, res, next) => {
 
 // Exporting the function for getting the login page
 exports.getLoginPage = (req, res, next) => {
-  res.json("Welcome to the login screen");
+  res.render("login");
 };
 
 // Exporting the function for posting to the login page
@@ -81,9 +82,7 @@ exports.postLoginPage = async (req, res, next) => {
 
     // Error handling if entered email or username is incorrect
     if (!user)
-      return next(
-        new ErrorResponse("Incorrect username or email. Please try again.", 400)
-      );
+      return next(new ErrorResponse("Incorrect username or email.", 400));
 
     // Error handling if entered password is incorrect
     const isMatched = await bcrypt.compare(password, user.password);
@@ -215,7 +214,7 @@ exports.postResetPassword = async (req, res, next) => {
 // Exporting the function for getting the reset password page
 exports.getLogout = (req, res, next) => {
   // Setting the value of jwt cookie to an empty string and then destroying the cookie in 1 ms followed by redirecting the user to the home page.
-  res.cookie("jwt", "", { maxAge: 1 }).redirect("/login");
+  res.cookie("jwt", "", { maxAge: 1 }).redirect("/api/auth/login");
 };
 
 // Fucntion for sending the mail of the reset-password and the response back to the user.

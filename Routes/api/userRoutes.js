@@ -10,7 +10,7 @@ const router = express.Router();
 
 // Route for GET request "/api/getAllUsers" URL to get all the users
 router.get(
-  "/getAllUsers",
+  "/user/getAllUsers",
   middleware.isLoggedIn,
   middleware.isAdmin,
   userController.getAllUsers
@@ -24,6 +24,13 @@ router.put("/user/:id", middleware.isLoggedIn, userController.updateUser);
 
 // Route for DELETE request "/api/user/:id" URL to delete a single user
 router.delete("/user/:id", middleware.isLoggedIn, userController.deleteUser);
+
+// Route for POST request "/api/user/:id/update-password" URL to update the password
+router.post(
+  "/user/:id/update-password",
+  middleware.isLoggedIn,
+  userController.updatePassword
+);
 
 // Exporting the router
 module.exports = router;
