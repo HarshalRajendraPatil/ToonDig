@@ -255,7 +255,7 @@ const sendResetPasswordMail = async function (
       },
       to: email,
       subject: "Reset Password",
-      html: `<p>Hi ${userName}, please copy the link and <a href="http://localhost:3000/api/auth/reset-password?token=${token}">reset your password</a></p>`,
+      html: `<p>Hi ${userName}, please copy the link and <a href="https://toondig.onrender.com/api/auth/reset-password?token=${token}">reset your password</a></p>`,
     };
 
     // Sending the mail to the given email
