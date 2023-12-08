@@ -9,6 +9,12 @@ const randomString = require("randomstring");
 const ErrorResponse = require("./../utils/errorResponse");
 const User = require("./../models/UserModel");
 
+// Global variable for storing id and token for forgot-password acc
+let global = {
+  id: null,
+  token: null,
+};
+
 // Exporting the function for getting the registration page
 exports.getRegisterPage = (req, res, next) => {
   res.render("register");
@@ -115,7 +121,7 @@ exports.postLoginPage = async (req, res, next) => {
 
 // Exporting the function for getting the forgot password page
 exports.getForgotPassword = (req, res, next) => {
-  res.send("Forgot password");
+  res.render("forgot-password");
 };
 
 // Exporting the function for posting to the forgot password page
@@ -137,6 +143,10 @@ exports.postForgotPassword = async (req, res, next) => {
     // Generating a random token with characters
     const token = randomString.generate();
 
+    // Setting the id to token to the global variables
+    global.id = userData._id;
+    global.token = token;
+
     // If the user is found, we update the token field and return the new doc.
     const data = await User.findByIdAndUpdate(
       userData._id,
@@ -154,7 +164,7 @@ exports.postForgotPassword = async (req, res, next) => {
 
 // Exporting the function for getting the reset password page
 exports.getResetPassword = (req, res, next) => {
-  res.json("Want to reset your password");
+  res.render("reset-password");
 };
 
 // Exporting the function for posting to the forgot password page
@@ -177,18 +187,14 @@ exports.postResetPassword = async (req, res, next) => {
     const hashedPass = await bcrypt.hash(newPass, 10);
 
     // Getting the token from the URL
-    const token = req.query.token;
+    // const token = req.url.split("=")[1];
 
     // Finding the user in the database with the provided token
-    const tokenUser = await User.findOne({ token });
+    const tokenUser = await User.findById(global.id);
 
     // Throwing error if no user with that token is found
-    if (!tokenUser)
+    if (tokenUser.token !== global.token)
       return next(new ErrorResponse("The token has already expired.", 400));
-
-    // Checking for token validity
-    if (token != tokenUser.token)
-      return next(new ErrorResponse("Invalid Token.", 400));
 
     // Updating the user with the new password and returning the new doc.
     const updatedUser = await User.findByIdAndUpdate(
@@ -199,6 +205,10 @@ exports.postResetPassword = async (req, res, next) => {
       { new: true, runValidators: true }
     );
 
+    // Setting the default values to global variables
+    global.id = null;
+    global.token = null;
+
     // Sending the response to the user with the updated user
     res.status(200).json({
       success: true,
@@ -206,7 +216,6 @@ exports.postResetPassword = async (req, res, next) => {
       updatedUser,
     });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 };
@@ -246,7 +255,7 @@ const sendResetPasswordMail = async function (
       },
       to: email,
       subject: "Reset Password",
-      html: `<p>Hi ${userName}, please copy the link and <a href="http://127.0.0.1:3000/reset-password?token=${token}">reset your password</a></p>`,
+      html: `<p>Hi ${userName}, please copy the link and <a href="http://localhost:3000/api/auth/reset-password?token=${token}">reset your password</a></p>`,
     };
 
     // Sending the mail to the given email
@@ -262,7 +271,7 @@ const sendResetPasswordMail = async function (
 
     // Sending the response back to the user
     res.status(200).json({
-      status: true,
+      success: true,
       message: `A link to reset you password has been send to ${email}.`,
       token,
     });
