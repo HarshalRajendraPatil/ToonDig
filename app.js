@@ -11,6 +11,7 @@ const middleware = require("./Middlewares/middleware");
 // Requiring all the Route files
 const authRoute = require("./Routes/authRoute");
 const userRoute = require("./Routes/api/userRoutes");
+const videoRoute = require("./Routes/api/videoRoutes");
 
 // Creating the instance of express which acts like the application
 const app = express();
@@ -23,16 +24,19 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-// Get requrest for "/" page
+// Request for "/" page
 app.get("/", middleware.isLoggedIn, (req, res, next) => {
   res.send("hello form the server");
 });
 
-// Get request for "/login, /register, /forgotpassword and /logout" page
+// Requests for "/login, /register, /forgotpassword and /logout" page
 app.use("/api/auth", authRoute);
 
-// Get request for User api
+// Request for User api
 app.use("/api", userRoute);
+
+// Request for Video api
+app.use("/api", videoRoute);
 
 // Global Error middleware
 app.use(middleware.errorHandler);

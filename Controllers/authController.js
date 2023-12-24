@@ -102,11 +102,13 @@ exports.postLoginPage = async (req, res, next) => {
       expiresIn: "3d",
     });
 
-    req.user = user;
-
-    // Sends the response back to the user with cookie of jwt set to the token and expires in 3 days
+    // Sends the response back to the user with cookie of jwt set to the token, userId set to logged in id of user and expires in 3 days
     res
       .cookie("jwt", token, { maxAge: 1000 * 60 * 60 * 24 * 3, httpOnly: true })
+      .cookie("userId", user._id, {
+        maxAge: 1000 * 60 * 60 * 24 * 3,
+        httpOnly: true,
+      })
       .status(200)
       .json({
         success: true,
@@ -255,7 +257,7 @@ const sendResetPasswordMail = async function (
       },
       to: email,
       subject: "Reset Password",
-      html: `<p>Hi ${userName}, please copy the link and <a href="https://toondig.onrender.com/api/auth/reset-password?token=${token}">reset your password</a></p>`,
+      html: `<p>Hi ${userName}, please copy the link and <a href="http://localhost:3000/api/auth/reset-password?token=${token}">reset your password</a></p>`,
     };
 
     // Sending the mail to the given email

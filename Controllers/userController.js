@@ -1,13 +1,20 @@
-const bcrypt = require("bcryptjs");
 // Requiring all the important modules
+const bcrypt = require("bcryptjs");
 const ErrorResponse = require("./../utils/errorResponse");
 const User = require("./../models/UserModel");
 
 // Exporting the function for getting the all the users
 exports.getAllUsers = async (req, res, next) => {
   try {
+    // Implementing basic pagination
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 5;
+
     // Getting all the users from the database
-    const users = await User.find({});
+    const users = await User.find({})
+      .skip((page - 1) * limit)
+      .limit(limit);
+
     // Sending back the response with all the users
     res.status(200).json({
       status: true,
@@ -23,11 +30,8 @@ exports.getAllUsers = async (req, res, next) => {
 // Exporting the function for getting a single user based on id
 exports.getUser = async (req, res, next) => {
   try {
-    // Extracting the user id from the URL
-    const userId = req.params.id;
-
-    // Finding the user in the database with given id and deselecting its password field
-    const user = await User.findById(userId).select("-password");
+    // Finding the user in the database with id and deselecting its password field
+    const user = await User.findById(req.cookies.userId).select("-password");
 
     // Handling the error if no user if found
     if (!user) return next(new ErrorResponse("No user found!!", 404));
@@ -55,8 +59,8 @@ exports.updateUser = async (req, res, next) => {
     if (!email && !userName)
       return next(new ErrorResponse("Please update at least one field.", 404));
 
-    // Getting the id from the URL
-    const userId = req.params.id;
+    // Getting the id from the cookie
+    const { userId } = req.cookies;
 
     // Creating the update object
     const updateValue = {
@@ -71,8 +75,6 @@ exports.updateUser = async (req, res, next) => {
         return next(new ErrorResponse("Email already in use.", 400));
       else return next(new ErrorResponse("Username already taken.", 400));
     }
-
-    if (!user) return next(new ErrorResponse("The user does not exists", 404));
 
     // Updating and returning the updated user
     const updatedUser = await User.findByIdAndUpdate(userId, updateValue, {
@@ -94,8 +96,8 @@ exports.updateUser = async (req, res, next) => {
 // Exporting the function for deleting a single user based on id
 exports.deleteUser = async (req, res, next) => {
   try {
-    // Extracting the user id from the URL
-    const userId = req.params.id;
+    // Extracting the user id from the cookie
+    const { userId } = req.cookies;
 
     // Finding the user in the database with given id
     const user = await User.findByIdAndDelete(userId);
@@ -104,33 +106,48 @@ exports.deleteUser = async (req, res, next) => {
     if (!user) return next(new ErrorResponse("No User found!!", 404));
 
     // Sending back the response
-    res.status(204);
+    res.status(204).redirect("/api/auth/login");
   } catch (error) {
     // Gives the error the global error middleware
     next(error);
   }
 };
 
-exports.updatePassword = async (req, res, next) => {
+exports.changePassword = async (req, res, next) => {
   try {
-    // Getting the id from the URL
-    const userId = req.params.id;
+    // Getting the id from the cookie
+    const { userId } = req.cookies;
 
     // Getting the value of password from the request body
     const password = req.body.password;
 
+    // Getting the value of previous password from the request body
+    const previousPassword = req.body.previousPassword;
+
+    // Handling the error if no previous password is provided
+    if (!previousPassword)
+      return next(new ErrorResponse("Please enter the previous password", 400));
+
     // Handling the error if no new password is provided
     if (!password)
       return next(new ErrorResponse("Please enter the new password", 400));
+
+    // Finding the user with the id
+    const user = await User.findById(userId);
+
+    // Checking if the previous password entered is correct or not
+    if (!(await bcrypt.compare(previousPassword, user.password)))
+      return next(new ErrorResponse("Wrong Password", 400));
+
+    // Checking if the new password is same as previous password
+    if (previousPassword === password)
+      return next(new ErrorResponse("Please enter different passwords", 400));
 
     // Handling the error if the length of the password is less than 8 characters
     if (password.length < 8)
       return next(
         new ErrorResponse("Password must contain at least 8 characters", 400)
       );
-
-    // Finding the user with the given id
-    const user = await User.findById(userId);
 
     // Handling the error if no user if found with the provided id
     if (!user) return next(new ErrorResponse("No user found!", 404));

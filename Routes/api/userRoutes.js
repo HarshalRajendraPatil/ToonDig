@@ -16,20 +16,24 @@ router.get(
   userController.getAllUsers
 );
 
-// Route for GET request "/api/user/:id" URL to get a single user
-router.get("/user/:id", middleware.isLoggedIn, userController.getUser);
+// Route for GET request "/api/user/profile" URL to get a single user
+router.get("/user/profile", middleware.isLoggedIn, userController.getUser);
 
-// Route for PUT request "/api/user/:id" URL to update a single user
-router.put("/user/:id", middleware.isLoggedIn, userController.updateUser);
+// Route for PUT request "/api/user/profile" URL to update a single user
+router.put("/user/profile", middleware.isLoggedIn, userController.updateUser);
 
-// Route for DELETE request "/api/user/:id" URL to delete a single user
-router.delete("/user/:id", middleware.isLoggedIn, userController.deleteUser);
-
-// Route for POST request "/api/user/:id/update-password" URL to update the password
-router.post(
-  "/user/:id/update-password",
+// Route for DELETE request "/api/user/delete-account" URL to delete a single user
+router.delete(
+  "/user/delete-account",
   middleware.isLoggedIn,
-  userController.updatePassword
+  userController.deleteUser
+);
+
+// Route for POST request "/api/user/change-password" URL to update the password
+router.post(
+  "/user/change-password",
+  middleware.isLoggedIn,
+  userController.changePassword
 );
 
 // Exporting the router

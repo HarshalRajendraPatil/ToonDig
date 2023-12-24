@@ -33,7 +33,7 @@ router.get("/reset-password", authController.getResetPassword);
 router.post("/reset-password", authController.postResetPassword);
 
 // Route for GET request on "/logout" link
-router.get("/logout", authController.getLogout);
+router.get("/logout", middleware.isLoggedIn, authController.getLogout);
 
 // Exporting the router
 module.exports = router;
