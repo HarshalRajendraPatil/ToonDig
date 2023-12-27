@@ -49,11 +49,13 @@ exports.postRegisterPage = async (req, res, next) => {
       expiresIn: "3d",
     });
 
-    req.user = createdUser;
-
     // Sends the response back to the user with cookie of jwt set to the token and expires in 3 days
     res
       .cookie("jwt", token, { maxAge: 1000 * 60 * 60 * 24 * 3, httpOnly: true })
+      .cookie("userId", createdUser._id, {
+        maxAge: 1000 * 60 * 60 * 24 * 3,
+        httpOnly: true,
+      })
       .status(201)
       .json({
         success: true,

@@ -7,44 +7,51 @@ const videoSchema = new mongoose.Schema(
     title: {
       type: String,
       required: true,
+      trim: true,
     },
     description: {
       type: String,
       required: true,
+      trim: true,
     },
     category: {
       type: String,
       required: true,
+      trim: true,
     },
     genre: {
       type: String,
       required: true,
+      trim: true,
     },
     releaseYear: {
       type: Number,
       required: true,
+      trim: true,
     },
     videoUrl: {
       type: String,
       required: true,
+      trim: true,
     },
-    // comments: [
-    //   {
-    //     user: {
-    //       type: mongoose.Schema.Types.ObjectId,
-    //       ref: "User", // Reference to the User model
-    //       required: true,
-    //     },
-    //     text: {
-    //       type: String,
-    //       required: true,
-    //     },
-    //     createdAt: {
-    //       type: Date,
-    //       default: Date.now,
-    //     },
-    //   },
-    // ],
+    comments: [
+      {
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User", // Reference to the User model
+          required: true,
+        },
+        text: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     // ratings: [
     //   {
     //     user: {

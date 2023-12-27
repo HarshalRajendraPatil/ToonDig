@@ -11,6 +11,14 @@ const router = express.Router();
 // Route for GET request "/api/videos" URL to get all the videos
 router.get("/videos", middleware.isLoggedIn, videoController.getAllVideos);
 
+// Route for get request "/api/videos/upload" URL to get the upload form
+router.get(
+  "/videos/upload",
+  middleware.isLoggedIn,
+  middleware.isAdmin,
+  videoController.getPostVideo
+);
+
 // Route for GET request "/api/videos/:id" URL to get a video based on id
 router.get("/videos/:id", middleware.isLoggedIn, videoController.getVideo);
 
@@ -20,6 +28,14 @@ router.post(
   middleware.isLoggedIn,
   middleware.isAdmin,
   videoController.postVideo
+);
+
+// Route for put request "/api/videos/edit/:id" URL to edit a video
+router.get(
+  "/videos/edit/:id",
+  middleware.isLoggedIn,
+  middleware.isAdmin,
+  videoController.getEditVideo
 );
 
 // Route for put request "/api/videos/edit/:id" URL to edit a video
@@ -36,6 +52,27 @@ router.delete(
   middleware.isLoggedIn,
   middleware.isAdmin,
   videoController.deleteVideo
+);
+
+// Route for post request "/api/videos/:id/comments/add" URL to comment on a video
+router.post(
+  "/videos/:id/comments/add",
+  middleware.isLoggedIn,
+  videoController.addComment
+);
+
+// Route for put requs
+router.put(
+  "/videos/:videoId/comments/:commentId",
+  middleware.isLoggedIn,
+  videoController.editComment
+);
+
+// Route for delete request "/api/videos/:videoId/comments/delete/:commentId" URL to delete a comment on a video
+router.delete(
+  "/videos/:videoId/comments/delete/:commentId",
+  middleware.isLoggedIn,
+  videoController.deleteComment
 );
 
 // Exporting the router

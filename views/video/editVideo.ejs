@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload a video</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      html {
+        font-size: 62.5%;
+        background-color: gray;
+      }
+
+      .container {
+        width: 100vw;
+        height: 100vh;
+        padding: 3rem 1rem;
+      }
+
+      .form-container {
+        max-width: 100rem;
+        margin: 0 auto;
+        color: black;
+        border-radius: 20px;
+        border: 2px solid black;
+        padding: 3rem;
+        background-color: #fff;
+      }
+
+      h1 {
+        font-size: 5rem;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .input-details {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      label {
+        font-size: 2rem;
+      }
+
+      input,
+      textarea {
+        border: none;
+        outline: none;
+        font-size: 2.5rem;
+        padding: 5px 0;
+        border-bottom: 2px solid black;
+        letter-spacing: 2px;
+        font-weight: 600;
+      }
+
+      .btn {
+        padding: 1rem;
+        background-color: black;
+        color: white;
+        font-size: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="form-container">
+        <h1>Edit a Video</h1>
+        <form class="form" action="#">
+          <div class="input-details">
+            <label for="name">Name :</label>
+            <input
+              class="input"
+              id="name"
+              placeholder="Name"
+              name="name"
+              type="text"
+              value="<%= title %>"
+            />
+          </div>
+          <div class="input-details">
+            <label for="description">Description :</label>
+            <textarea
+              placeholder="Description"
+              name="description"
+              id="description"
+              rows="1"
+            >
+            <%= description %></textarea
+            >
+          </div>
+          <div class="input-details">
+            <label for="category">Category :</label>
+            <input
+              class="input"
+              placeholder="Category"
+              id="category"
+              name="category"
+              type="text"
+              value="<%= category %>"
+            />
+          </div>
+          <div class="input-details">
+            <label for="genre">Genre :</label>
+            <input
+              class="input"
+              placeholder="Genre"
+              id="genre"
+              name="genre"
+              type="text"
+              value="<%= genre %>"
+            />
+          </div>
+          <div class="input-details">
+            <label for="releaseYear">Release year :</label>
+            <input
+              class="input"
+              id="releaseYear"
+              name="releaseYear"
+              type="text"
+              placeholder="Release Year"
+              value="<%= releaseYear %>"
+            />
+          </div>
+          <div class="input-details">
+            <label for="url">Url :</label>
+            <input
+              class="input"
+              placeholder="URL"
+              id="url"
+              name="url"
+              type="text"
+              value="<%= videoUrl %>"
+            />
+          </div>
+          <input type="submit" class="btn" value="Edit" />
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

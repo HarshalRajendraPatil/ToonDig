@@ -1,6 +1,8 @@
 // Requiring all the important modules
 const ErrorResponse = require("./../utils/errorResponse");
 const Video = require("./../models/VideoModel");
+const mongoose = require("mongoose");
+const User = require("../models/UserModel");
 
 // Exporting the function for getting the all the vidoes
 exports.getAllVideos = async (req, res, next) => {
@@ -32,7 +34,7 @@ exports.getVideo = async (req, res, next) => {
     const videoId = req.params.id;
 
     // Getting the videos from the database based on id
-    const video = await Video.findOne({ _id: videoId });
+    const video = await Video.findById(videoId);
 
     // Sending back the response with all the videos
     res.status(200).json({
@@ -41,8 +43,14 @@ exports.getVideo = async (req, res, next) => {
     });
   } catch (error) {
     // Gives the error the global error middleware
+    console.log(error);
     next(error);
   }
+};
+
+// Exporing the function for showing the upload form
+exports.getPostVideo = (req, res, next) => {
+  res.render("video/uploadVideo");
 };
 
 // Exporting the function for uploading the video
@@ -66,6 +74,22 @@ exports.postVideo = async (req, res, next) => {
     // Gives the error the global error middleware
     next(error);
   }
+};
+
+// Exporing the function for showing the upload form
+exports.getEditVideo = async (req, res, next) => {
+  const videoId = req.params.id;
+  const video = await Video.findById(videoId);
+  const payload = {
+    title: video.title,
+    description: video.description.trim(),
+    category: video.category,
+    genre: video.genre,
+    releaseYear: video.releaseYear,
+    videoUrl: video.videoUrl,
+  };
+  console.log(video, payload);
+  res.render("video/editVideo", payload);
 };
 
 // Exporting the function for updaing a single video based on id
@@ -114,6 +138,134 @@ exports.deleteVideo = async (req, res, next) => {
 
     // Sending back the response
     res.status(204).redirect("/api/videos");
+  } catch (error) {
+    // Gives the error the global error middleware
+    next(error);
+  }
+};
+
+// Exporting the function for commenting on a video
+exports.addComment = async (req, res, next) => {
+  try {
+    // Getting the video id from the url
+    const videoId = req.params.id;
+
+    // Early return when no comment body is provided
+    if (!req.body.comment)
+      return next(new ErrorResponse("Please enter a comment", 400));
+
+    // Finding and updating the comment section of the video
+    const video = await Video.findByIdAndUpdate(
+      videoId,
+      {
+        $push: {
+          comments: { user: req.cookies.userId, text: req.body.comment },
+        },
+      },
+      { new: true }
+    );
+
+    // Handling error if the video does not exists.
+    if (!video)
+      return next(new ErrorResponse("This video does not exists", 404));
+
+    // Sending back the response
+    res.status(200).json({
+      status: true,
+      video,
+    });
+  } catch (error) {
+    // Gives the error the global error middleware
+    next(error);
+  }
+};
+
+exports.editComment = async (req, res) => {
+  try {
+    // Getting all the id's
+    const videoId = req.params.videoId;
+    const commentId = req.params.commentId;
+    const userId = req.cookies.userId;
+    const newText = req.body.text;
+
+    // Find the video and logged user by ID
+    const video = await Video.findById(videoId);
+    const user = await User.findById(userId);
+
+    // Handling error if no video is found
+    if (!video) {
+      return res.status(404).json({ error: "Video not found." });
+    }
+
+    // Find the comment by ID
+    const comment = video.comments.id(commentId);
+
+    // Handling error if no comment is found
+    if (!comment) {
+      return res.status(404).json({ error: "Comment not found." });
+    }
+
+    // Check if the user owns the comment
+    if (!user.access && comment.user.toString() !== userId.toString()) {
+      return res.status(403).json({
+        error:
+          "Unauthorized - You do not have permission to edit this comment.",
+      });
+    }
+
+    // Update the comment text
+    comment.text = newText;
+    await video.save();
+
+    // Sending bak the response
+    res.status(200).json({ status: true, video });
+  } catch (error) {
+    // Gives the error the global error middleware
+    next(error);
+  }
+};
+
+// Exporting the function for deleting a comment on a video
+exports.deleteComment = async (req, res, next) => {
+  try {
+    // Getting the video and comment id from the url
+    const { videoId, commentId } = req.params;
+
+    // Getting the logged in user and the video of the comment
+    const loggedUser = await User.findById(req.cookies.userId);
+    const fromVideo = await Video.findById(videoId);
+
+    // finding the exact comment to delete
+    const postToDelete = fromVideo.comments.find(
+      (comment) => comment._id == commentId
+    );
+
+    // Allowing access to admin and the author to delete the post
+    if (
+      !loggedUser.access &&
+      !(postToDelete.user.toString() == req.cookies.userId)
+    )
+      return next(new ErrorResponse("You are not the author of the post", 400));
+
+    // Finding and updating the comment section of the video
+    const video = await Video.findByIdAndUpdate(
+      videoId,
+      {
+        $pull: {
+          comments: { _id: new mongoose.Types.ObjectId(commentId) },
+        },
+      },
+      { new: true }
+    );
+
+    // Handling error if the video does not exists.
+    if (!video)
+      return next(new ErrorResponse("This video does not exists", 404));
+
+    res.status(200).json({
+      status: true,
+      video,
+    });
   } catch (error) {
     // Gives the error the global error middleware
     next(error);
