@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upload a video</title>
+    <script defer src="/js/uploadVideo.js"></script>
     <style>
       * {
         margin: 0;
@@ -73,6 +74,11 @@
         color: white;
         font-size: 2rem;
       }
+      .error {
+        max-width: 100%;
+        font-size: 2rem;
+        color: red;
+      }
     </style>
   </head>
   <body>
@@ -136,9 +142,10 @@
               placeholder="URL"
               id="url"
               name="url"
-              type="text"
+              type="url"
             />
           </div>
+          <p class="error"></p>
           <input type="submit" class="btn" value="Upload" />
         </form>
       </div>

@@ -42,8 +42,7 @@ exports.getVideo = async (req, res, next) => {
       video,
     });
   } catch (error) {
-    // Gives the error the global error middleware
-    console.log(error);
+    // Gives the error the global error middlewarexx
     next(error);
   }
 };
@@ -61,6 +60,15 @@ exports.postVideo = async (req, res, next) => {
       req.body;
     if (!(title && description && category && genre && releaseYear && videoUrl))
       return next(new ErrorResponse("Please fill all the fields", 400));
+
+    const repeatedVideo = await Video.findOne({
+      $or: [{ title }, { videoUrl }],
+    });
+    if (repeatedVideo) {
+      if (repeatedVideo.title == title)
+        return next(new ErrorResponse("This title is already taken.", 400));
+      else return next(new ErrorResponse("This video is already present", 400));
+    }
 
     // Creating the object to be saved
     const data = { title, description, category, genre, releaseYear, videoUrl };
@@ -88,7 +96,6 @@ exports.getEditVideo = async (req, res, next) => {
     releaseYear: video.releaseYear,
     videoUrl: video.videoUrl,
   };
-  console.log(video, payload);
   res.render("video/editVideo", payload);
 };
 
@@ -180,7 +187,7 @@ exports.addComment = async (req, res, next) => {
   }
 };
 
-exports.editComment = async (req, res) => {
+exports.editComment = async (req, res, next) => {
   try {
     // Getting all the id's
     const videoId = req.params.videoId;
@@ -194,7 +201,7 @@ exports.editComment = async (req, res) => {
 
     // Handling error if no video is found
     if (!video) {
-      return res.status(404).json({ error: "Video not found." });
+      return next(new ErrorResponse("Video not found", 404));
     }
 
     // Find the comment by ID
@@ -202,15 +209,17 @@ exports.editComment = async (req, res) => {
 
     // Handling error if no comment is found
     if (!comment) {
-      return res.status(404).json({ error: "Comment not found." });
+      return next(new ErrorResponse("Comment not found", 404));
     }
 
     // Check if the user owns the comment
     if (!user.access && comment.user.toString() !== userId.toString()) {
-      return res.status(403).json({
-        error:
-          "Unauthorized - You do not have permission to edit this comment.",
-      });
+      return next(
+        new ErrorResponse(
+          "You do not have permission to edit this comment.",
+          400
+        )
+      );
     }
 
     // Update the comment text
