@@ -61,7 +61,7 @@ router.post(
   videoController.addComment
 );
 
-// Route for put requs
+// Route for put request
 router.put(
   "/videos/:videoId/comments/:commentId",
   middleware.isLoggedIn,

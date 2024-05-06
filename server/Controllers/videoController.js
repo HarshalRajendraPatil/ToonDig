@@ -151,6 +151,14 @@ exports.deleteVideo = async (req, res, next) => {
   }
 };
 
+exports.getComments = async (req, res, next) => {
+  try {
+  } catch (error) {
+    // Gives the error the global error middleware
+    next(error);
+  }
+};
+
 // Exporting the function for commenting on a video
 exports.addComment = async (req, res, next) => {
   try {
