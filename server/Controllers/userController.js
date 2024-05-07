@@ -1,17 +1,17 @@
 // Requiring all the important modules
-const bcrypt = require("bcryptjs");
-const ErrorResponse = require("./../utils/errorResponse");
-const User = require("./../models/UserModel");
+import bcrypt from "bcryptjs";
+import ErrorResponse from "../utils/errorResponse.js";
+import User from "../models/UserModel.js";
 
 // Exporting the function for getting the all the users
-exports.getAllUsers = async (req, res, next) => {
+const getAllUsers = async (req, res, next) => {
   try {
     // Implementing basic pagination
     const page = req.query.page || 1;
     const limit = req.query.limit || 5;
 
     // Getting all the users from the database
-    const users = await User.find({})
+    const users = await User.find()
       .skip((page - 1) * limit)
       .limit(limit);
 
@@ -28,10 +28,12 @@ exports.getAllUsers = async (req, res, next) => {
 };
 
 // Exporting the function for getting a single user based on id
-exports.getUser = async (req, res, next) => {
+const getUser = async (req, res, next) => {
   try {
     // Finding the user in the database with id and deselecting its password field
-    const user = await User.findById(req.cookies.userId).select("-password");
+    const user = await User.findById(req.cookies.userId).select(
+      "-password -token"
+    );
 
     // Handling the error if no user if found
     if (!user) return next(new ErrorResponse("No user found!!", 404));
@@ -48,7 +50,7 @@ exports.getUser = async (req, res, next) => {
 };
 
 // Exporting the function for updaing a single user based on id
-exports.updateUser = async (req, res, next) => {
+const updateUser = async (req, res, next) => {
   // Yet to implement
   try {
     // Getting the value of email and userName from the request body.
@@ -94,7 +96,7 @@ exports.updateUser = async (req, res, next) => {
 };
 
 // Exporting the function for deleting a single user based on id
-exports.deleteUser = async (req, res, next) => {
+const deleteUser = async (req, res, next) => {
   try {
     // Extracting the user id from the cookie
     const { userId } = req.cookies;
@@ -106,14 +108,20 @@ exports.deleteUser = async (req, res, next) => {
     if (!user) return next(new ErrorResponse("No User found!!", 404));
 
     // Sending back the response
-    res.status(204).redirect("/api/auth/login");
+    res
+      .status(204)
+      .cookie("jwt", "", { maxAge: 0 })
+      .cookie("userId", "", {
+        maxAge: 0,
+      })
+      .json();
   } catch (error) {
     // Gives the error the global error middleware
     next(error);
   }
 };
 
-exports.changePassword = async (req, res, next) => {
+const changePassword = async (req, res, next) => {
   try {
     // Getting the id from the cookie
     const { userId } = req.cookies;
@@ -135,22 +143,18 @@ exports.changePassword = async (req, res, next) => {
     // Finding the user with the id
     const user = await User.findById(userId);
 
+    // Handling the error if no user if found with the provided id
+    if (!user) return next(new ErrorResponse("No user found!", 404));
+
     // Checking if the previous password entered is correct or not
     if (!(await bcrypt.compare(previousPassword, user.password)))
       return next(new ErrorResponse("Wrong Password", 400));
-
-    // Checking if the new password is same as previous password
-    if (previousPassword === password)
-      return next(new ErrorResponse("Please enter different passwords", 400));
 
     // Handling the error if the length of the password is less than 8 characters
     if (password.length < 8)
       return next(
         new ErrorResponse("Password must contain at least 8 characters", 400)
       );
-
-    // Handling the error if no user if found with the provided id
-    if (!user) return next(new ErrorResponse("No user found!", 404));
 
     // Handling the error if the new password is same as current password
     const isSame = await bcrypt.compare(password, user.password);
@@ -172,7 +176,7 @@ exports.changePassword = async (req, res, next) => {
         $set: { password: hashedPass },
       },
       { new: true, runValidators: true }
-    ).select("-password");
+    ).select("-password -token");
 
     // Returning response to the user
     res.status(200).json({
@@ -183,3 +187,5 @@ exports.changePassword = async (req, res, next) => {
     next(error);
   }
 };
+
+export default { getAllUsers, getUser, changePassword, updateUser, deleteUser };

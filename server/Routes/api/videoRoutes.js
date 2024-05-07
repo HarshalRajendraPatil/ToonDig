@@ -1,23 +1,15 @@
 // Requiring all the important packages
-const express = require("express");
+import express from "express";
 
 // Requiring all the important modules
-const videoController = require("./../../Controllers/videoController");
-const middleware = require("./../../Middlewares/middleware");
+import videoController from "./../../Controllers/videoController.js";
+import middleware from "../../Middlewares/middleware.js";
 
 // Creating the instance of express which acts like the mini-application to the main app
 const router = express.Router();
 
 // Route for GET request "/api/videos" URL to get all the videos
 router.get("/videos", middleware.isLoggedIn, videoController.getAllVideos);
-
-// Route for get request "/api/videos/upload" URL to get the upload form
-router.get(
-  "/videos/upload",
-  middleware.isLoggedIn,
-  middleware.isAdmin,
-  videoController.getPostVideo
-);
 
 // Route for GET request "/api/videos/:id" URL to get a video based on id
 router.get("/videos/:id", middleware.isLoggedIn, videoController.getVideo);
@@ -28,14 +20,6 @@ router.post(
   middleware.isLoggedIn,
   middleware.isAdmin,
   videoController.postVideo
-);
-
-// Route for put request "/api/videos/edit/:id" URL to edit a video
-router.get(
-  "/videos/edit/:id",
-  middleware.isLoggedIn,
-  middleware.isAdmin,
-  videoController.getEditVideo
 );
 
 // Route for put request "/api/videos/edit/:id" URL to edit a video
@@ -76,4 +60,4 @@ router.delete(
 );
 
 // Exporting the router
-module.exports = router;
+export default router;

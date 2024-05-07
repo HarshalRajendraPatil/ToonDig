@@ -1,12 +1,12 @@
 // Requiring all the important packages
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 // Requiring all the external packages and internal files
-const ErrorResponse = require("../utils/errorResponse");
-const User = require("../models/UserModel");
+import ErrorResponse from "../utils/errorResponse.js";
+import User from "../models/UserModel.js";
 
 // middleware for handling the errors of different types
-exports.errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
@@ -36,24 +36,31 @@ exports.errorHandler = (err, req, res, next) => {
 };
 
 // Middleware for checking if the user is logged in or not
-exports.isLoggedIn = (req, res, next) => {
+const isLoggedIn = async (req, res, next) => {
   // Getting the token if it exists
   const token = req.cookies.jwt;
 
   // Redirecting the user to the login page if no token exists
-  if (!token) return res.redirect("/api/auth/login");
+  if (!token)
+    return res.status(400).json({ status: false, message: "Please login." });
 
   // Verifying the token if the token exists
   jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
-    if (err) return res.redirect("/api/auth/login");
+    if (err)
+      return res.status(400).json({ status: false, message: "Please login." });
   });
 
+  if (!req.cookies.userId)
+    return res.status(400).json({ status: false, message: "Please login." });
+
+  const user = await User.findById(req.cookies.userId);
+  req.user = user;
   // Moving on with the next middleware
   next();
 };
 
 // Middleware for checking if the user is allowed to access this route
-exports.isAdmin = async (req, res, next) => {
+const isAdmin = async (req, res, next) => {
   try {
     // Getting the jwt token from the user
     const token = req.cookies.jwt;
@@ -86,3 +93,5 @@ exports.isAdmin = async (req, res, next) => {
     next(error);
   }
 };
+
+export default { isAdmin, isLoggedIn, errorHandler };

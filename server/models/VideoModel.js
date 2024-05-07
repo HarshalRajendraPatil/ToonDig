@@ -1,5 +1,5 @@
 // Requiring all the important packages
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 // Creating the Schema for users
 const videoSchema = new mongoose.Schema(
@@ -82,4 +82,4 @@ const videoSchema = new mongoose.Schema(
 const Video = mongoose.model("Video", videoSchema);
 
 // Exporting the User model
-module.exports = Video;
+export default Video;

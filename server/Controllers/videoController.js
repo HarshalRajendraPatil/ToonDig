@@ -1,11 +1,11 @@
 // Requiring all the important modules
-const ErrorResponse = require("./../utils/errorResponse");
-const Video = require("./../models/VideoModel");
-const mongoose = require("mongoose");
-const User = require("../models/UserModel");
+import ErrorResponse from "../utils/errorResponse.js";
+import Video from "./../models/VideoModel.js";
+import mongoose from "mongoose";
+import User from "../models/UserModel.js";
 
 // Exporting the function for getting the all the vidoes
-exports.getAllVideos = async (req, res, next) => {
+const getAllVideos = async (req, res, next) => {
   try {
     // Implementing basic pagination
     const page = req.query.page || 1;
@@ -28,7 +28,7 @@ exports.getAllVideos = async (req, res, next) => {
 };
 
 // Exporting the function for getting a single video based on id
-exports.getVideo = async (req, res, next) => {
+const getVideo = async (req, res, next) => {
   try {
     // Extracting the video id from the URL
     const videoId = req.params.id;
@@ -47,13 +47,8 @@ exports.getVideo = async (req, res, next) => {
   }
 };
 
-// Exporing the function for showing the upload form
-exports.getPostVideo = (req, res, next) => {
-  res.render("video/uploadVideo");
-};
-
 // Exporting the function for uploading the video
-exports.postVideo = async (req, res, next) => {
+const postVideo = async (req, res, next) => {
   try {
     // Checking if the admin has entered all the fields to upload a video
     const { title, description, category, genre, releaseYear, videoUrl } =
@@ -84,23 +79,8 @@ exports.postVideo = async (req, res, next) => {
   }
 };
 
-// Exporing the function for showing the upload form
-exports.getEditVideo = async (req, res, next) => {
-  const videoId = req.params.id;
-  const video = await Video.findById(videoId);
-  const payload = {
-    title: video.title,
-    description: video.description.trim(),
-    category: video.category,
-    genre: video.genre,
-    releaseYear: video.releaseYear,
-    videoUrl: video.videoUrl,
-  };
-  res.render("video/editVideo", payload);
-};
-
 // Exporting the function for updaing a single video based on id
-exports.editVideo = async (req, res, next) => {
+const editVideo = async (req, res, next) => {
   try {
     // Extracting the video id from the URL
     const videoId = req.params.id;
@@ -132,7 +112,7 @@ exports.editVideo = async (req, res, next) => {
 };
 
 // Exporting the function for deleting a single video based on id
-exports.deleteVideo = async (req, res, next) => {
+const deleteVideo = async (req, res, next) => {
   try {
     // Extracting the video id from the URL
     const videoId = req.params.id;
@@ -151,7 +131,7 @@ exports.deleteVideo = async (req, res, next) => {
   }
 };
 
-exports.getComments = async (req, res, next) => {
+const getComments = async (req, res, next) => {
   try {
   } catch (error) {
     // Gives the error the global error middleware
@@ -160,7 +140,7 @@ exports.getComments = async (req, res, next) => {
 };
 
 // Exporting the function for commenting on a video
-exports.addComment = async (req, res, next) => {
+const addComment = async (req, res, next) => {
   try {
     // Getting the video id from the url
     const videoId = req.params.id;
@@ -195,7 +175,7 @@ exports.addComment = async (req, res, next) => {
   }
 };
 
-exports.editComment = async (req, res, next) => {
+const editComment = async (req, res, next) => {
   try {
     // Getting all the id's
     const videoId = req.params.videoId;
@@ -243,7 +223,7 @@ exports.editComment = async (req, res, next) => {
 };
 
 // Exporting the function for deleting a comment on a video
-exports.deleteComment = async (req, res, next) => {
+const deleteComment = async (req, res, next) => {
   try {
     // Getting the video and comment id from the url
     const { videoId, commentId } = req.params;
@@ -287,4 +267,16 @@ exports.deleteComment = async (req, res, next) => {
     // Gives the error the global error middleware
     next(error);
   }
+};
+
+export default {
+  getAllVideos,
+  getVideo,
+  postVideo,
+  editVideo,
+  deleteVideo,
+  getComments,
+  editComment,
+  deleteComment,
+  addComment,
 };

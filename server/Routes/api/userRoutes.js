@@ -1,9 +1,9 @@
 // Requiring all the important packages
-const express = require("express");
+import express from "express";
 
 // Requiring all the important modules
-const userController = require("./../../Controllers/userController");
-const middleware = require("./../../Middlewares/middleware");
+import userController from "./../../Controllers/userController.js";
+import middleware from "../../Middlewares/middleware.js";
 
 // Creating the instance of express which acts like the mini-application to the main app
 const router = express.Router();
@@ -37,4 +37,4 @@ router.post(
 );
 
 // Exporting the router
-module.exports = router;
+export default router;

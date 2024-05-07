@@ -1,8 +1,9 @@
 // Requiring all the important packages
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 // Requiring all the important modules
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 // Creating the custom class of Database to connect to the database
 class Database {
@@ -23,4 +24,4 @@ class Database {
 }
 
 // Exporting the object of the Database class
-module.exports = new Database();
+export default new Database();

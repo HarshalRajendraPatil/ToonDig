@@ -1,17 +1,18 @@
 // Requiring all the important packages
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const morgan = require("morgan");
+import express from "express";
+import cookieParser from "cookie-parser";
+import morgan from "morgan";
 
 // Requiring all the important modules
-require("dotenv").config();
-require("./dataBaseConnection");
-const middleware = require("./Middlewares/middleware");
+import dotenv from "dotenv";
+dotenv.config();
+import db from "./dataBaseConnection.js";
+import middleware from "./Middlewares/middleware.js";
 
 // Requiring all the Route files
-const authRoute = require("./Routes/authRoute");
-const userRoute = require("./Routes/api/userRoutes");
-const videoRoute = require("./Routes/api/videoRoutes");
+import authRoute from "./Routes/authRoute.js";
+import userRoute from "./Routes/api/userRoutes.js";
+import videoRoute from "./Routes/api/videoRoutes.js";
 
 // Creating the instance of express which acts like the application
 const app = express();
@@ -21,8 +22,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(express.static("public"));
-app.set("view engine", "ejs");
-app.set("views", "views");
 
 // Request for "/" page
 app.get("/", middleware.isLoggedIn, (req, res, next) => {

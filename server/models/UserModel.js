@@ -1,6 +1,6 @@
 // Requiring all the important packages
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 // Creating the Schema for users
 const userSchema = new mongoose.Schema(
@@ -43,4 +43,4 @@ userSchema.pre("save", async function () {
 const User = mongoose.model("User", userSchema);
 
 // Exporting the User model
-module.exports = User;
+export default User;

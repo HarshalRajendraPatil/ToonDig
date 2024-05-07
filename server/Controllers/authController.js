@@ -1,13 +1,14 @@
 // Requiring all the important packages
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
-const bcrypt = require("bcryptjs");
-const nodeMailer = require("nodemailer");
-const randomString = require("randomstring");
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
+import bcrypt from "bcryptjs";
+import nodeMailer from "nodemailer";
+import randomString from "randomstring";
 
 // Requiring all the important modules
-const ErrorResponse = require("./../utils/errorResponse");
-const User = require("./../models/UserModel");
+import ErrorResponse from "../utils/errorResponse.js";
+import User from "../models/UserModel.js";
 
 // Global variable for storing id and token for forgot-password acc
 let global = {
@@ -15,17 +16,11 @@ let global = {
   token: null,
 };
 
-// Exporting the function for getting the registration page
-exports.getRegisterPage = (req, res, next) => {
-  res.render("register");
-};
-
 // Exporting the function for posting to the registration page
-exports.postRegisterPage = async (req, res, next) => {
+const postRegisterPage = async (req, res, next) => {
   try {
     // Checking if the email, password and username is entered or not
     const { userName, email, password } = req.body;
-    console.log(userName, email, password);
     if (!email || !password || !userName)
       return next(
         new ErrorResponse("Please fill out all the fields correctly", 400)
@@ -68,13 +63,8 @@ exports.postRegisterPage = async (req, res, next) => {
   }
 };
 
-// Exporting the function for getting the login page
-exports.getLoginPage = (req, res, next) => {
-  res.render("login");
-};
-
 // Exporting the function for posting to the login page
-exports.postLoginPage = async (req, res, next) => {
+const postLoginPage = async (req, res, next) => {
   const { email, password } = req.body;
   try {
     // Checking if the email and password is entered or not
@@ -123,13 +113,8 @@ exports.postLoginPage = async (req, res, next) => {
   }
 };
 
-// Exporting the function for getting the forgot password page
-exports.getForgotPassword = (req, res, next) => {
-  res.render("forgot-password");
-};
-
 // Exporting the function for posting to the forgot password page
-exports.postForgotPassword = async (req, res, next) => {
+const postForgotPassword = async (req, res, next) => {
   try {
     const email = req.body.email;
     // Checking if the email is entered or not
@@ -166,13 +151,8 @@ exports.postForgotPassword = async (req, res, next) => {
   }
 };
 
-// Exporting the function for getting the reset password page
-exports.getResetPassword = (req, res, next) => {
-  res.render("reset-password");
-};
-
 // Exporting the function for posting to the forgot password page
-exports.postResetPassword = async (req, res, next) => {
+const postResetPassword = async (req, res, next) => {
   try {
     // Getting the value of password from the user
     const newPass = req.body.password;
@@ -197,7 +177,7 @@ exports.postResetPassword = async (req, res, next) => {
     const tokenUser = await User.findById(global.id);
 
     // Throwing error if no user with that token is found
-    if (tokenUser.token !== global.token)
+    if (tokenUser?.token !== global.token)
       return next(new ErrorResponse("The token has already expired.", 400));
 
     // Updating the user with the new password and returning the new doc.
@@ -225,9 +205,12 @@ exports.postResetPassword = async (req, res, next) => {
 };
 
 // Exporting the function for getting the reset password page
-exports.getLogout = (req, res, next) => {
+const postLogout = (req, res, next) => {
   // Setting the value of jwt cookie to an empty string and then destroying the cookie in 1 ms followed by redirecting the user to the home page.
-  res.cookie("jwt", "", { maxAge: 1 }).redirect("/api/auth/login");
+  res
+    .cookie("jwt", "", { maxAge: 0 })
+    .cookie("userId", "", { maxAge: 0 })
+    .json({ success: true, message: "User logged out" });
 };
 
 // Fucntion for sending the mail of the reset-password and the response back to the user.
@@ -255,7 +238,7 @@ const sendResetPasswordMail = async function (
     const mailOption = {
       from: {
         name: "ToonDig",
-        address: process.env.USER,
+        address: process.env.EMAIL,
       },
       to: email,
       subject: "Reset Password",
@@ -265,7 +248,6 @@ const sendResetPasswordMail = async function (
     // Sending the mail to the given email
     transporter.sendMail(mailOption, function (error, info) {
       if (error) {
-        console.log(error);
         next(
           // Gives the error the global error middleware
           new ErrorResponse("Failed to send the mail. Try again later", 500)
@@ -281,7 +263,14 @@ const sendResetPasswordMail = async function (
     });
   } catch (error) {
     // Gives the error the global error middleware
-    console.log(error);
     next(error);
   }
+};
+
+export default {
+  postRegisterPage,
+  postLoginPage,
+  postForgotPassword,
+  postResetPassword,
+  postLogout,
 };

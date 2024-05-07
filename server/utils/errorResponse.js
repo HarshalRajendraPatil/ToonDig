@@ -7,4 +7,4 @@ class ErrorResponse extends Error {
 }
 
 // Exprting the class and not its object
-module.exports = ErrorResponse;
+export default ErrorResponse;
